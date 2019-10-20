@@ -34,9 +34,6 @@ let persons = [
   }
 ];
 
-app.get("/", (request, response) => {
-  response.send("<h1>Hello World!</h1>");
-});
 app.get("/api/persons", (request, response) => {
   console.log("get person request recieved");
   Person.find({}).then(persons => response.json(persons.map(p => p.toJSON())));
