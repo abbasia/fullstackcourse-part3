@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
 
 const app = express();
@@ -7,6 +8,7 @@ const bodyParser = require("body-parser");
 
 app.use(bodyParser.json());
 
+app.use(cors());
 app.use(morgan("tiny"));
 
 let persons = [
@@ -31,12 +33,12 @@ let persons = [
     id: 4
   }
 ];
-console.log("persons =", persons);
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
 });
 app.get("/api/persons", (request, response) => {
+  console.log("get person request recieved");
   response.json(persons);
 });
 app.get("/api/persons/:id", (request, response) => {
