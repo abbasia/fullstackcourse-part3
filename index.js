@@ -78,7 +78,7 @@ app.post("/api/persons", (request, response) => {
   }
   const person = { name, number, id: generateId() };
   persons = persons.concat(person);
-  response.json({ name, number });
+  response.json(person);
 });
 
 app.delete("/api/persons/:id", (request, response) => {
