@@ -11,31 +11,7 @@ app.use(cors());
 app.use(express.static("build"));
 app.use(morgan("tiny"));
 
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "040-123456",
-    id: 1
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-    id: 2
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3
-  },
-  {
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-    id: 4
-  }
-];
-
 app.get("/api/persons", (request, response) => {
-  console.log("get person request recieved");
   Person.find({}).then(persons => response.json(persons.map(p => p.toJSON())));
 });
 app.get("/api/persons/:id", (request, response, next) => {
@@ -61,17 +37,14 @@ app.get("/info", (request, response) => {
   );
 });
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const { name, number } = request.body;
 
-  if (!name || !number) {
-    return response
-      .status(400)
-      .json({ error: "The name or number is missing" });
-  }
-
   const person = new Person({ name, number });
-  person.save().then(savedPerson => response.json(savedPerson.toJSON()));
+  person
+    .save()
+    .then(savedPerson => response.json(savedPerson.toJSON()))
+    .catch(error => next(error));
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
@@ -103,7 +76,10 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message);
   if (error.name === "CastError" && error.kind === "ObjectId") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).send({ error: error.message });
   }
+
   next(error);
 };
 
