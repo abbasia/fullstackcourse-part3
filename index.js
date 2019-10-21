@@ -12,7 +12,9 @@ app.use(express.static("build"));
 app.use(morgan("tiny"));
 
 app.get("/api/persons", (request, response) => {
-  Person.find({}).then(persons => response.json(persons.map(p => p.toJSON())));
+  Person.find({})
+    .then(persons => persons.map(p => p.toJSON()))
+    .then(formatted => response.json(formatted));
 });
 app.get("/api/persons/:id", (request, response, next) => {
   Person.findById(request.params.id)
@@ -43,7 +45,8 @@ app.post("/api/persons", (request, response, next) => {
   const person = new Person({ name, number });
   person
     .save()
-    .then(savedPerson => response.json(savedPerson.toJSON()))
+    .then(saved => saved.toJSON())
+    .then(formatted => response.json(formatted))
     .catch(error => next(error));
 });
 
@@ -53,9 +56,8 @@ app.put("/api/persons/:id", (request, response, next) => {
 
   const person = { name, number };
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
-    .then(updatedPerson => {
-      response.json(updatedPerson.toJSON());
-    })
+    .then(updatedPerson => updatedPerson.toJSON())
+    .then(updatedAndFormattedPerson => response.json(updatedAndFormattedPerson))
     .catch(error => next(error));
 });
 app.delete("/api/persons/:id", (request, response, next) => {
